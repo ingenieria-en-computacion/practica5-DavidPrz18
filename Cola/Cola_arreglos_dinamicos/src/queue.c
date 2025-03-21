@@ -9,6 +9,17 @@
  * @details Esta función inicializa una cola vacía. Asigna memoria dinàmica con malloc al arreglo data usando len
  */
 Queue queue_create(int len){
+    Queue q;
+    q.data = (Data *)malloc(len * sizeof(Data)); // Asignamos memoria para el arreglo de datos
+    if (q.data == NULL) {
+        // Si malloc falla, indicamos que la cola no se pudo crear
+        q.head = q.tail = -1;
+        q.len = 0;
+    } else {
+        q.head = q.tail = -1; // Inicializamos como vacía
+        q.len = len; // Asignamos la capacidad de la cola
+    }
+    return q;
 
 }
 
@@ -20,6 +31,19 @@ Queue queue_create(int len){
  * @details Esta función añade el dato `d` al final de la cola.
  */
 void queue_enqueue(Queue* q, Data d){
+    if (q->tail == q->len - 1) {
+        // Si la cola está llena, no podemos agregar más elementos
+        printf("Error: La cola está llena.\n");
+        return;
+    }
+
+    if (q->head == -1) {
+        // Si la cola está vacía, inicializamos el primer elemento
+        q->head = 0;
+    }
+
+    q->tail++; // Avanzamos el puntero tail
+    q->data[q->tail] = d; // Insertamos el nuevo dato
 
 }
 
@@ -33,6 +57,21 @@ void queue_enqueue(Queue* q, Data d){
  *          Si la cola está vacía, no se realiza ninguna operación y se devuelve un valor de error.
  */
 Data queue_dequeue(Queue* q){
+    if (q->head == -1) {
+        // Si la cola está vacía
+        printf("Error: La cola está vacía.\n");
+        return -1; // Valor de error
+    }
+
+    Data front = q->data[q->head]; // Obtenemos el dato al frente
+    if (q->head == q->tail) {
+        // Si la cola tenía un solo elemento, la vaciamos
+        q->head = q->tail = -1;
+    } else {
+        q->head++; // Movemos el puntero head
+    }
+
+    return front; // Devolvemos el elemento
 
 }
 
@@ -45,6 +84,7 @@ Data queue_dequeue(Queue* q){
  *          como `queue_dequeue` en una cola vacía.
  */
 bool queue_is_empty(Queue* q){
+    return (q->head == -1); // La cola está vacía si head es -1
 
 }
 
@@ -57,6 +97,13 @@ bool queue_is_empty(Queue* q){
  *          Si la cola está vacía, no se realiza ninguna operación y se devuelve un valor de error.
  */
 Data queue_front(Queue* q){
+    if (q->head == -1) {
+        // Si la cola está vacía
+        printf("Error: La cola está vacía.\n");
+        return -1; // Valor de error
+    }
+
+    return q->data[q->head]; // Devolvemos el dato al frente de la cola
 
 }
 
@@ -67,7 +114,7 @@ Data queue_front(Queue* q){
  * @details Esta función hace que los índices head y tail tomen el valor de -1
  */
 void queue_empty(Queue* q){
-
+    q->head = q->tail = -1; 
 }
 
 /**
@@ -79,5 +126,9 @@ void queue_empty(Queue* q){
  *          de ser eliminada.
  */
 void queue_delete(Queue* q){
+    if (q->data != NULL) {
+        free(q->data); // Liberamos la memoria del arreglo de datos
+        q->data = NULL; // Desreferenciamos el puntero
+    }
 
 }
